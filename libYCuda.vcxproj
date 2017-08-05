@@ -50,6 +50,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -57,14 +58,21 @@
     <PreBuildEvent>
       <Command>mkdir "$(SolutionDir)$(Platform)\$(Configuration)\build\include"
 mkdir "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda"
+mkdir "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\resizer"
 copy "$(ProjectDir)\ycuda\*.hpp" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"
 copy "$(ProjectDir)\ycuda\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"
-copy "$(ProjectDir)\ycuda\resizer\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"</Command>
+copy "$(ProjectDir)\ycuda\resizer\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\resizer\"</Command>
     </PreBuildEvent>
     <CudaCompile>
-      <CodeGeneration>compute_60,sm_60</CodeGeneration>
+      <CodeGeneration>compute_52,sm_52</CodeGeneration>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <Include>$(ProjectDir)\ycuda\</Include>
+      <CudaRuntime>Static</CudaRuntime>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -73,6 +81,7 @@ copy "$(ProjectDir)\ycuda\resizer\*.h" "$(SolutionDir)$(Platform)\$(Configuratio
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -82,14 +91,21 @@ copy "$(ProjectDir)\ycuda\resizer\*.h" "$(SolutionDir)$(Platform)\$(Configuratio
     <PreBuildEvent>
       <Command>mkdir "$(SolutionDir)$(Platform)\$(Configuration)\build\include"
 mkdir "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda"
+mkdir "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\resizer"
 copy "$(ProjectDir)\ycuda\*.hpp" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"
 copy "$(ProjectDir)\ycuda\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"
-copy "$(ProjectDir)\ycuda\resizer\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"</Command>
+copy "$(ProjectDir)\ycuda\resizer\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\resizer\"</Command>
     </PreBuildEvent>
     <CudaCompile>
-      <CodeGeneration>compute_60,sm_60</CodeGeneration>
+      <CodeGeneration>compute_52,sm_52</CodeGeneration>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <Include>$(ProjectDir)\ycuda\</Include>
+      <CudaRuntime>Static</CudaRuntime>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <CudaCompile Include="ycuda\CudaFunctionWrapper.cu">

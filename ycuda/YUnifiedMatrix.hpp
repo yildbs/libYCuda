@@ -1,4 +1,4 @@
-#include "YUnifiedMemory.hpp"
+#include <ycuda/YUnifiedMemory.hpp>
 
 namespace ycuda{
 
@@ -26,9 +26,9 @@ public:
 	YUnifiedMatrix& operator=(YUnifiedMatrix&& mat)
 	{
 		YUnifiedMemory::operator =(mat);
-		this->width = width;
-		this->height = height;
-		this->channels = channels;
+		this->width = mat.width;
+		this->height = mat.height;
+		this->channels = mat.channels;
 		return *this;
 	}
 	inline size_t GetWidth() const{

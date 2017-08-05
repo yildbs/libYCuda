@@ -8,8 +8,8 @@
 
 #include <memory>
 
-#include "error_util.h"
-#include "CudaFunctionWrapper.h"
+#include <ycuda/error_util.h>
+#include <ycuda/CudaFunctionWrapper.h>
 
 namespace ycuda{
 

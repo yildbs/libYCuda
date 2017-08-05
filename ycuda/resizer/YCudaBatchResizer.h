@@ -1,8 +1,7 @@
 #include <vector>
-
 #include <cuda.h>
 
-#include "../YUnifiedMatrix.hpp"
+#include <ycuda/YUnifiedMatrix.hpp>
 
 namespace ycuda{
 namespace resizer{
@@ -12,7 +11,7 @@ private:
 	bool initialized;
 	size_t num_matrix;
 	int width, height, channels;
-	YUnifiedMemory<float> dst;
+	YUnifiedMemory<float> data;
 public:
 	YCudaBatchMatrix();
 	YCudaBatchMatrix& SetSize(int width, int height, int channels = 1);
@@ -21,6 +20,7 @@ public:
 	inline int GetHeight() const;
 	inline size_t GetLength() const;
 	float* const Bits() const;
+	YUnifiedMemory<float>& GetData();
 };
 
 class YListRect{
@@ -70,7 +70,9 @@ public:
 	YCudaBatchResizer& PushRect(int x, int y, int w, int h);
 
 	size_t CudaBatchResize(int size, unsigned char* ptr);
+
 	float* const GetDstBits() const;
+	YUnifiedMemory<float>& GetDst();
 };
 
 

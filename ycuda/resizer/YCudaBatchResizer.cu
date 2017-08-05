@@ -1,7 +1,8 @@
-#include "YCudaBatchResizer.h"
 #include <iostream>
 #include <chrono>
 #include <time.h>
+
+#include <ycuda/resizer/YCudaBatchResizer.h>
 
 namespace ycuda{
 namespace resizer{
@@ -77,7 +78,7 @@ YCudaBatchMatrix& YCudaBatchMatrix::SetNumMatrix(size_t num_matrix)
 	assert(num_matrix>0 && "YCudaBatchMatrix:: num_matrix is same or less than 0");
 	int length_elem = this->width * this->height * this->channels;
 	this->num_matrix = num_matrix;
-	this->dst.Resize(num_matrix*length_elem);
+	this->data.Resize(num_matrix*length_elem);
 	return *this;
 }
 inline int YCudaBatchMatrix::GetWidth() const
@@ -95,9 +96,12 @@ inline size_t YCudaBatchMatrix::GetLength() const
 float* const YCudaBatchMatrix::Bits() const
 {
 	assert(this->initialized==true && "YCudaBatchMatrix:: Get the pointer before initialized");
-	return dst.Bits();
+	return data.Bits();
 }
-
+YUnifiedMemory<float>& YCudaBatchMatrix::GetData()
+{
+	return this->data;
+}
 /**
  * YListRect
  */
@@ -203,14 +207,15 @@ YCudaBatchResizer& YCudaBatchResizer::PushRect(int x, int y, int w, int h)
 }
 
 
-#define CALCULATE_CUDA_OCCUPANCY 1
-#define MEASURE_TIME 1
+#define CALCULATE_CUDA_OCCUPANCY 0
+#define MEASURE_TIME 0
 
 size_t YCudaBatchResizer::CudaBatchResize(int size, unsigned char* ptr)
 {
 	//Copy source image
 	src.CopyFrom(0, size, ptr);
 
+	this->dst.SetNumMatrix(this->rects.GetNumRects());
 	int num_total_threads = this->dst.GetLength();
 	int block_size = 640;
 
@@ -226,6 +231,7 @@ size_t YCudaBatchResizer::CudaBatchResize(int size, unsigned char* ptr)
 #if MEASURE_TIME
 	auto start_resizer = std::chrono::high_resolution_clock::now();
 #endif
+	
 
 	dim3 dim_block(block_size);
 	dim3 dim_grid(num_total_threads%block_size==0? num_total_threads/block_size : static_cast<int>(num_total_threads/block_size)+1);
@@ -273,6 +279,10 @@ size_t YCudaBatchResizer::CudaBatchResize(int size, unsigned char* ptr)
 float* const YCudaBatchResizer::GetDstBits() const
 {
 	return this->dst.Bits();
+}
+YUnifiedMemory<float>& YCudaBatchResizer::GetDst()
+{
+	return this->dst.GetData();
 }
 
 }
