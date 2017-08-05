@@ -93,7 +93,6 @@ public:
 		this->data 	= mem.data;
 		this->length = mem.length;
 		this->capacity = mem.capacity;
-		mem.data = nullptr;
 		return *this;
 	}
     inline YUnifiedMemory<T>& CopyFrom(int start_index, size_t length, T* src)

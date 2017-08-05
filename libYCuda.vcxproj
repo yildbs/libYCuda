@@ -58,7 +58,8 @@
       <Command>mkdir "$(SolutionDir)$(Platform)\$(Configuration)\build\include"
 mkdir "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda"
 copy "$(ProjectDir)\ycuda\*.hpp" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"
-copy "$(ProjectDir)\ycuda\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"</Command>
+copy "$(ProjectDir)\ycuda\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"
+copy "$(ProjectDir)\ycuda\resizer\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"</Command>
     </PreBuildEvent>
     <CudaCompile>
       <CodeGeneration>compute_60,sm_60</CodeGeneration>
@@ -82,7 +83,8 @@ copy "$(ProjectDir)\ycuda\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build
       <Command>mkdir "$(SolutionDir)$(Platform)\$(Configuration)\build\include"
 mkdir "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda"
 copy "$(ProjectDir)\ycuda\*.hpp" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"
-copy "$(ProjectDir)\ycuda\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"</Command>
+copy "$(ProjectDir)\ycuda\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"
+copy "$(ProjectDir)\ycuda\resizer\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build\include\ycuda\"</Command>
     </PreBuildEvent>
     <CudaCompile>
       <CodeGeneration>compute_60,sm_60</CodeGeneration>
@@ -93,10 +95,12 @@ copy "$(ProjectDir)\ycuda\*.h" "$(SolutionDir)$(Platform)\$(Configuration)\build
     <CudaCompile Include="ycuda\CudaFunctionWrapper.cu">
       <FileType>Document</FileType>
     </CudaCompile>
+    <CudaCompile Include="ycuda\resizer\YCudaBatchResizer.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ycuda\CudaFunctionWrapper.h" />
     <ClInclude Include="ycuda\error_util.h" />
+    <ClInclude Include="ycuda\resizer\YCudaBatchResizer.h" />
     <ClInclude Include="ycuda\YUnifiedMatrix.hpp" />
     <ClInclude Include="ycuda\YUnifiedMemory.hpp" />
   </ItemGroup>

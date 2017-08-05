@@ -26,5 +26,13 @@
     <ClInclude Include="ycuda\error_util.h">
       <Filter>ycuda</Filter>
     </ClInclude>
+    <ClInclude Include="ycuda\resizer\YCudaBatchResizer.h">
+      <Filter>ycuda\resizer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="ycuda\resizer\YCudaBatchResizer.cu">
+      <Filter>ycuda\resizer</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

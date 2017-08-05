@@ -3,10 +3,8 @@
 #include <chrono>
 #include <time.h>
 
-namespace ydnn{
-namespace cuda{
+namespace ycuda{
 namespace resizer{
-
 
 __global__ void CudaKernel_BatchResize_Gray2Gray(
 		int src_width,
@@ -49,6 +47,103 @@ __global__ void CudaKernel_BatchResize_Gray2Gray(
 	dst_ptr[blockIdx.x * blockDim.x + threadIdx.x] = value / 255.f;
 }
 
+/**
+ * YCudaBatchMatrix
+ */
+YCudaBatchMatrix::YCudaBatchMatrix()
+: num_matrix(10)
+, width(0)
+, height(0)
+, channels(1)
+, initialized(false)
+{
+}
+YCudaBatchMatrix& YCudaBatchMatrix::SetSize(int width, int height, int channels)
+{
+	assert(width>0 && "YCudaBatchMatrix:: width is same or less than 0");
+	assert(height>0 && "YCudaBatchMatrix:: height is same or less than 0");
+	assert(channels>0 && "YCudaBatchMatrix:: channels is same or less than 0");
+	assert(initialized==false && "YCudaBatchMatrix:: Try to SetSize function after initialized");
+	this->initialized = true;
+	this->width = width;
+	this->height = height;
+	this->channels = channels;
+	this->SetNumMatrix(this->num_matrix);
+	return *this;
+}
+YCudaBatchMatrix& YCudaBatchMatrix::SetNumMatrix(size_t num_matrix)
+{
+	assert(this->initialized==true && "YCudaBatchMatrix:: Call SetNumMatrix function before initialized");
+	assert(num_matrix>0 && "YCudaBatchMatrix:: num_matrix is same or less than 0");
+	int length_elem = this->width * this->height * this->channels;
+	this->num_matrix = num_matrix;
+	this->dst.Resize(num_matrix*length_elem);
+	return *this;
+}
+inline int YCudaBatchMatrix::GetWidth() const
+{
+	return this->width;
+}
+inline int YCudaBatchMatrix::GetHeight() const
+{
+	return this->height;
+}
+inline size_t YCudaBatchMatrix::GetLength() const
+{
+	return this->num_matrix*this->width*this->height*this->channels;
+}
+float* const YCudaBatchMatrix::Bits() const
+{
+	assert(this->initialized==true && "YCudaBatchMatrix:: Get the pointer before initialized");
+	return dst.Bits();
+}
+
+/**
+ * YListRect
+ */
+YListRect::YListRect(int capacity)
+:num_rects(capacity), start_index(0)
+{
+	this->SetNumRects(capacity);
+}
+YListRect& YListRect::SetNumRects(int capacity)
+{
+	this->num_rects = capacity;
+	this->data.Resize(capacity*4);
+	this->Reset();
+	return *this;
+}
+int YListRect::GetNumRects() const
+{
+	return this->start_index;
+}
+YListRect& YListRect::Reset()
+{
+	this->start_index = 0;
+	return *this;
+}
+int YListRect::PushRect(int x, int y, int w, int h)
+{
+	assert(this->num_rects > this->start_index && "YListRect:: start_index must be lower than capacity");
+	data.Bits(start_index*4)[0] = x;
+	data.Bits(start_index*4)[1] = y;
+	data.Bits(start_index*4)[2] = w;
+	data.Bits(start_index*4)[3] = h;
+	return this->start_index++;
+}
+size_t YListRect::GetLength() const
+{
+	return this->start_index;
+}
+int* const YListRect::Bits() const
+{
+	return this->data.Bits();
+}
+
+
+/**
+ * YCudaBatchResizer
+ */
 YCudaBatchResizer::YCudaBatchResizer()
 : src_type(MatrixType::NOT_INITIALIZED)
 , dst_type(MatrixType::NOT_INITIALIZED)
@@ -175,11 +270,10 @@ size_t YCudaBatchResizer::CudaBatchResize(int size, unsigned char* ptr)
 	return this->rects.GetNumRects();
 }
 
-float* YCudaBatchResizer::GetDstBits() const
+float* const YCudaBatchResizer::GetDstBits() const
 {
 	return this->dst.Bits();
 }
 
-}
 }
 }
