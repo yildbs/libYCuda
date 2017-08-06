@@ -7,7 +7,7 @@
 namespace ycuda{
 namespace resizer{
 
-__global__ void CudaKernel_BatchResize_Gray2Gray(
+__global__ void CudaKernel_BatchResize_GRAY2GRAY(
 		int src_width,
 		unsigned char* src_image,
 		int num_rects,
@@ -40,10 +40,10 @@ __global__ void CudaKernel_BatchResize_Gray2Gray(
 	int src_y = rects[image_index*4 + 1];
 
 	float value = 0.;
-	value += (float)src_image[src_width*(src_y+coor_y_in_rect+0) + (src_x+coor_x_in_rect+0)] * fx * fy;
-	value += (float)src_image[src_width*(src_y+coor_y_in_rect+0) + (src_x+coor_x_in_rect+1)] * (1.0f-fx)*fy;
-	value += (float)src_image[src_width*(src_y+coor_y_in_rect+1) + (src_x+coor_x_in_rect+0)] * fx*(1.0f-fy);
-	value += (float)src_image[src_width*(src_y+coor_y_in_rect+1) + (src_x+coor_x_in_rect+1)] * (1.0f-fx)*(1.0f-fy);
+	value += (float)src_image[src_width*(src_y + coor_y_in_rect + 0) + (src_x + coor_x_in_rect + 0)] * fx * fy;
+	value += (float)src_image[src_width*(src_y + coor_y_in_rect + 0) + (src_x + coor_x_in_rect + 1)] * (1.0f - fx)*fy;
+	value += (float)src_image[src_width*(src_y + coor_y_in_rect + 1) + (src_x + coor_x_in_rect + 0)] * fx*(1.0f - fy);
+	value += (float)src_image[src_width*(src_y + coor_y_in_rect + 1) + (src_x + coor_x_in_rect + 1)] * (1.0f - fx)*(1.0f - fy);
 
 	dst_ptr[blockIdx.x * blockDim.x + threadIdx.x] = value / 255.f;
 }
@@ -162,7 +162,7 @@ YCudaBatchResizer::~YCudaBatchResizer()
 YCudaBatchResizer& YCudaBatchResizer::SetSourceSize(size_t width, size_t height, MatrixType type)
 {
 	//TODO
-	assert(type==MatrixType::GRAY && "YCudaBatchResizer:: Only resizing GRAY image is implemented");
+	//assert(type==MatrixType::GRAY && "YCudaBatchResizer:: Only resizing GRAY image is implemented");
 	assert(width>0 && "YUnifiedMatrix:: width is same or less than 0");
 	assert(height>0 && "YUnifiedMatrix:: height is same or less than 0");
 	this->src_type = type;
@@ -176,7 +176,7 @@ YCudaBatchResizer& YCudaBatchResizer::SetDestinationSize(size_t width, size_t he
 	//TODO
 	assert(this->initialized==false && "YCudaBatchResizer:: Reinitialize the destination size is not allowed");
 	assert(this->src_type!=MatrixType::NOT_INITIALIZED && "Src type is not initialized");
-	assert(type==MatrixType::GRAY && "YCudaBatchResizer:: Only resizing GRAY image is implemented");
+	//assert(type==MatrixType::GRAY && "YCudaBatchResizer:: Only resizing GRAY image is implemented");
 	assert(width>0 && "YUnifiedMatrix:: width is same or less than 0");
 	assert(height>0 && "YUnifiedMatrix:: height is same or less than 0");
 	this->dst_type = type;
@@ -206,7 +206,6 @@ YCudaBatchResizer& YCudaBatchResizer::PushRect(int x, int y, int w, int h)
 	return *this;
 }
 
-
 #define CALCULATE_CUDA_OCCUPANCY 0
 #define MEASURE_TIME 0
 
@@ -216,27 +215,29 @@ size_t YCudaBatchResizer::CudaBatchResize(int size, unsigned char* ptr)
 	src.CopyFrom(0, size, ptr);
 
 	this->dst.SetNumMatrix(this->rects.GetNumRects());
-	int num_total_threads = this->dst.GetLength();
-	int block_size = 640;
 
 #if CALCULATE_CUDA_OCCUPANCY
 	//For estimating cuda occupancy
 	int min_grid_size, grid_size;
-	cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, CudaKernel_BatchResize_Gray2Gray, 0, 0);
+	int optimal_block_size;
+	cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &optimal_block_size, CudaKernel_BatchResize_GRAY2GRAY, 0, 0);
 	printf("min_grid_size : %d\n", min_grid_size);
-	printf("block_size : %d\n", block_size);
+	printf("optimal_block_size : %d\n", optimal_block_size);
 	//-----------------------------
 #endif
 
 #if MEASURE_TIME
 	auto start_resizer = std::chrono::high_resolution_clock::now();
 #endif
-	
-
-	dim3 dim_block(block_size);
-	dim3 dim_grid(num_total_threads%block_size==0? num_total_threads/block_size : static_cast<int>(num_total_threads/block_size)+1);
 	if(src_type==MatrixType::GRAY && dst_type==MatrixType::GRAY){
-		CudaKernel_BatchResize_Gray2Gray<<<dim_grid, dim_block>>>(
+		int num_total_threads = this->dst.GetLength();
+		int block_size = 640;
+#if CALCULATE_CUDA_OCCUPANCY
+		block_size = optimal_block_size;
+#endif
+		dim3 dim_block(block_size);
+		dim3 dim_grid(num_total_threads%block_size==0? num_total_threads/block_size : static_cast<int>(num_total_threads/block_size)+1);
+		CudaKernel_BatchResize_GRAY2GRAY<<<dim_grid, dim_block>>>(
 			this->src.GetWidth(),
 			this->src.Bits(),
 			this->rects.GetNumRects(),
@@ -245,7 +246,8 @@ size_t YCudaBatchResizer::CudaBatchResize(int size, unsigned char* ptr)
 			this->dst.GetHeight(),
 			this->dst.Bits()
 		);
-	}else{
+	} 
+	else{
 		assert(0 && "YCudaBatchResizer:: Not implemented resizing function");
 	}
 	cudaDeviceSynchronize();
@@ -258,7 +260,7 @@ size_t YCudaBatchResizer::CudaBatchResize(int size, unsigned char* ptr)
 #if CALCULATE_CUDA_OCCUPANCY
 	//For estimating cuda occupancy
 	int max_active_blocks;
-	cudaOccupancyMaxActiveBlocksPerMultiprocessor(&max_active_blocks, CudaKernel_BatchResize_Gray2Gray, block_size, 0);
+	cudaOccupancyMaxActiveBlocksPerMultiprocessor(&max_active_blocks, CudaKernel_BatchResize_GRAY2GRAY, optimal_block_size, 0);
 	printf("max_active_blocks : %d\n", max_active_blocks);
 	int device;
 	cudaDeviceProp props;
@@ -267,8 +269,8 @@ size_t YCudaBatchResizer::CudaBatchResize(int size, unsigned char* ptr)
 
 	printf("props.warpSize : %d\n", props.warpSize);
 	printf("props.maxThreadsPerMultiProcessor : %d\n", props.maxThreadsPerMultiProcessor);
-	printf("block_size : %d\n", block_size);
-	float occupancy = (float)((float)((float)max_active_blocks*(float)block_size/(float)props.warpSize) / (float)((float)props.maxThreadsPerMultiProcessor/(float)props.warpSize));
+	printf("optimal_block_size : %d\n", optimal_block_size);
+	float occupancy = (float)((float)((float)max_active_blocks*(float)optimal_block_size/(float)props.warpSize) / (float)((float)props.maxThreadsPerMultiProcessor/(float)props.warpSize));
 	printf("occupancy : %.2f\n", occupancy);
 	//-----------------------------
 #endif

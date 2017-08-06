@@ -9,11 +9,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ycuda\CudaFunctionWrapper.cu">
-      <Filter>ycuda</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="ycuda\CudaFunctionWrapper.h">
       <Filter>ycuda</Filter>
     </ClInclude>
@@ -33,6 +28,9 @@
   <ItemGroup>
     <CudaCompile Include="ycuda\resizer\YCudaBatchResizer.cu">
       <Filter>ycuda\resizer</Filter>
+    </CudaCompile>
+    <CudaCompile Include="ycuda\CudaFunctionWrapper.cu">
+      <Filter>ycuda</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>
