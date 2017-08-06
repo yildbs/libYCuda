@@ -5,9 +5,7 @@
 - CUDA 8.0 
 - VS 2013
 
-## Classes
-- Classes description
-
+## Classes Description
 	### YUnifiedMemory
 	- CUDA Memory manager using std::shared_ptr
 
@@ -15,5 +13,5 @@
 	- Class for matrix handling like GpuMat in OpenCV
 
 	### YCudaBatchResizer
-	- Multiple regions in a frame can be resized by this class
+	- Multiple regions in a frame can be resized at once by this class
 	- The example code is at https://github.com/yildbs/Deep-Leaning-On-C-with-cuDNN/tree/master/Example-YDNNwithBatchResizer
