@@ -8,12 +8,12 @@
 ## Classes
 - Classes description
 
-### YUnifiedMemory
-- CUDA Memory manager using std::shared_ptr
+	### YUnifiedMemory
+	- CUDA Memory manager using std::shared_ptr
 
-### YUnifiedMatrix
-- Class for matrix handling like GpuMat in opencv
+	### YUnifiedMatrix
+	- Class for matrix handling like GpuMat in OpenCV
 
-### YCudaBatchResizer
-- Multiple regions in a frame can be resized by this 
-- The example code is at https://github.com/yildbs/Deep-Leaning-On-C-with-cuDNN/tree/master/Example-YDNNwithBatchResizer
+	### YCudaBatchResizer
+	- Multiple regions in a frame can be resized by this class
+	- The example code is at https://github.com/yildbs/Deep-Leaning-On-C-with-cuDNN/tree/master/Example-YDNNwithBatchResizer
